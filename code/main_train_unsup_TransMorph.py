@@ -1,4 +1,6 @@
 #%%
+import sys
+sys.path.append('/path_to_auxiliary/')
 import os
 import numpy as np
 import torch
