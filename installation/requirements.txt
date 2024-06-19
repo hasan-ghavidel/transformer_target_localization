@@ -12,4 +12,5 @@ pystrum==0.2
 dcmrtstruct2nii==1.0.18
 num2words==0.5.12
 wandb==0.15.4
-
+timm
+monai
