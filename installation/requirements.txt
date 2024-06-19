@@ -14,3 +14,4 @@ num2words==0.5.12
 wandb==0.15.4
 timm
 monai
+scipy
