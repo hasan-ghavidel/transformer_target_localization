@@ -267,7 +267,7 @@ def get_path_to_best_optimizer(path_model_files, neg_loss=False):
     return path_best_optimizer
 
 
-def get_paths_dict(path_dataset, moving_id='frame_six.nii.gz', seg=False, excluded_frames=[]):
+def get_paths_dict(path_dataset, moving_id='OAS1_0028_MR1_mpr-1_100.jpg', seg=False, excluded_frames=[]):
     """Get paths to all pairs of fixed and moving images in a specified directory. Needs to be adapted to own folder structure!
 
     Args:
@@ -288,9 +288,8 @@ def get_paths_dict(path_dataset, moving_id='frame_six.nii.gz', seg=False, exclud
     if seg is False:
         # getting all paths to fixed and moving images
         for path_case in path_data:
-            # print(f'Getting paths for: {path_case}')
             # getting paths to different cine MRI (sessions)
-            for path_cine in subdir_paths(os.path.join(path_case, 'raw_cine')):
+            for path_cine in subdir_paths(path_case):
                 for _, _, file_list in os.walk(path_cine):
                     if moving_id is None:
                         # convert list from words back to number
@@ -320,7 +319,7 @@ def get_paths_dict(path_dataset, moving_id='frame_six.nii.gz', seg=False, exclud
         }
         for idx in range(len(paths_fixed_image))
         ]
-        
+               
     else:
         # getting all paths to fixed and moving images
         labels_folder = 'labels'
@@ -343,7 +342,7 @@ def get_paths_dict(path_dataset, moving_id='frame_six.nii.gz', seg=False, exclud
                     
                 if os.path.basename(path_dataset) == 'lung_patient0041':
                     # as the first frame for this patient is empty, manually select the next which isn't
-                    moving_id_name = 'frame_nine.nii.gz'
+                    moving_id_name = 'OAS1_0028_MR1_mpr-1_109.jpg'
                 
                 nr_frames = 0   # nr of fixed images
                 for file_name in current_dir_file_list:
@@ -544,7 +543,7 @@ def text2int(textnum, numwords={}):
     current = result = 0
     for word in textnum.replace(',', '').split():
         if word not in numwords:
-          raise Exception("Illegal word: " + word)
+          continue
 
         scale, increment = numwords[word]
         current = current * scale + increment
@@ -682,6 +681,7 @@ def get_segmentation_com(outputs, targets, to_tensor=True):
     return com_outputs, com_targets
 
 def breathhold_detection_vectorized(array1, array2=None, wdw_size=20, amp_threshold1=0.05, amp_threshold2=0.005):
+
     """ Given a sequence of data, subdivide it in windows and then slide over them to find breath-holds.
     Args:
         array1: input sequence (e.g. inf-sup)
@@ -741,6 +741,7 @@ def breathhold_detection_vectorized(array1, array2=None, wdw_size=20, amp_thresh
                 breathholds[window] = 1           
 
     return breathholds
+
 # %%
 
 # if __name__ == "__main__":    
