@@ -1,7 +1,7 @@
 #%%
-import sys
-sys.path.append('/path_to_auxiliary/')
 import os
+import sys
+sys.path.append('Path_to_auxiliary')
 import numpy as np
 import torch
 from models.TransMorph import dict_model_variants
@@ -56,15 +56,14 @@ if config.wandb_usage:
 # GET DATA
 
 # settings path to dataset etc
-path_dataset = os.path.join(config.path_project_data, 'training', 'converted', config.dataset)
+path_dataset = os.path.join(config.path_project_data, config.dataset)
 path_saving = os.path.join(config.path_project_results, 'training', config.model_name, config.start_time_string)
 os.makedirs(path_saving, exist_ok=True)
 # path_saving = None
 path_loading = os.path.join(config.path_project_results, 'training', config.model_name, config.start_time_string)
 
 # get a list with dictionaries with paths to fixed and moving images
-paths_dict = utils.get_paths_dict(path_dataset=path_dataset,
-                                    moving_id=config.moving_id)
+paths_dict = utils.get_paths_dict(path_dataset=path_dataset, moving_id=config.moving_id)
 
 # split (randomly) into training and validation
 train_files, val_files = utils.split_train_val(paths_dict, split_ratio=config.train_val_split, split_randomly=True, seed=42)
@@ -74,7 +73,7 @@ val_files_supervised = []
 if config.supervised_validation:
     # pool data from all validation patients here
     for patient in config.patients_validation:
-        path_dataset_supervised = os.path.join(config.path_project_data, 'testing', 'images', 'final_with_contours', config.observer_validation, patient)
+        path_dataset_supervised = os.path.join(config.path_project_data, 'input',config.observer_validation, patient)
         val_files_supervised.extend(utils.get_paths_dict(path_dataset=path_dataset_supervised, moving_id=config.moving_id, seg=True))
 print(f'Number of supervised validation image pairs: {len(val_files_supervised)}')
 
