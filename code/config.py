@@ -11,7 +11,7 @@ import sys
 
 # set path to project folder 
 # (to be adapted to your path inside Docker container where project folder is mounted)
-path_project = '/home/target_localization'
+path_project = '/home/ra96qiz/Semester3/Project/transformer_target_localization'
 
 # path to data folder
 path_project_data = os.path.join(path_project, 'data')
@@ -68,7 +68,7 @@ moving_id = None
 
 # choose dataset
 # dataset = '2023_05_10_test'
-dataset = '2023_05_05_all_sites'
+dataset = 'input'
 
 # other data params
 wandb_usage = False
@@ -80,19 +80,12 @@ patient_specific_inference = True       # whether to use model trained on first 
 inference = 'testing'   #  validation, testing 
 
 # choose patients for labeled fine-tuning, validation and testing set 
-observer_training = 'contoured_ground_truth_LV'
-patients_training = ['liver_patient0010', 'liver_patient0012', 'liver_patient0015', 'abdomen_patient0011', \
-                    'prostate_patient0021', 'lung_patient0017', 'lung_patient0042', 'lung_patient0027', \
-                    'lung_patient0019', 'lung_patient0091', 'pancreas_patient0001', 'pancreas_patient0007']
-observer_validation = 'contoured_ground_truth_LV'
-patients_validation = ['liver_patient0005', 'liver_patient0056', 'liver_patient0061', 'abdomen_patient0006', \
-                    'prostate_patient0001', 'lung_patient0004', 'lung_patient0033', 'lung_patient0002', \
-                    'pancreas_patient0022', 'pancreas_patient0005']
-observer_testing = 'contoured_ground_truth_VG'  #  contoured_ground_truth_LV, contoured_ground_truth_VG
-patients_testing = ['liver_patient0006', 'liver_patient0027', 'abdomen_patient0008', 'abdomen_patient0017', \
-                    'prostate_patient0006', 'prostate_patient0013', 'lung_patient0041', 'lung_patient0046', \
-                    'pancreas_patient0002', 'pancreas_patient0011', \
-                    'heart_patient0001', 'heart_patient0002', 'mediastinum_patient0002']
+observer_training = 'OAS1_0308_MR1_mpr-1_101.jpg'
+patients_training = ['OAS1_0021_MR1_mpr-1_132', 'OAS1_0021_MR1_mpr-1_133', 'OAS1_0021_MR1_mpr-1_134', 'OAS1_0021_MR1_mpr-1_135']
+observer_validation = 'Non Demented'
+patients_validation = ['patient_val']
+observer_testing = 'OAS1_0308_MR1_mpr-1_101.jpg'  #  contoured_ground_truth_LV, contoured_ground_truth_VG
+patients_testing = ['OAS1_0001_MR1_mpr-1_101', 'OAS1_0001_MR1_mpr-1_102', 'OAS1_0001_MR1_mpr-1_103', 'OAS1_0001_MR1_mpr-1_104']
 
 
 # choose model for main script
