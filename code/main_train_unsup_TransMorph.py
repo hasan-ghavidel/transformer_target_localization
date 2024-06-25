@@ -65,6 +65,11 @@ path_loading = os.path.join(config.path_project_results, 'training', config.mode
 # get a list with dictionaries with paths to fixed and moving images
 paths_dict = utils.get_paths_dict(path_dataset=path_dataset, moving_id=config.moving_id)
 
+for item in paths_dict:
+    for key, path in item.items():
+        file_name = os.path.basename(path)
+        print(f"{key}: {file_name}")
+
 # split (randomly) into training and validation
 train_files, val_files = utils.split_train_val(paths_dict, split_ratio=config.train_val_split, split_randomly=True, seed=42)
 print(f'Number of training image pairs: {len(train_files)}')
