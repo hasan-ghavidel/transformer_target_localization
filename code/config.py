@@ -11,7 +11,7 @@ import sys
 
 # set path to project folder 
 # (to be adapted to your path inside Docker container where project folder is mounted)
-path_project = '/home/ra96qiz/Semester3/Project/transformer_target_localization'
+path_project = '/project/med/Hassan_Ghavidel/transformer_target_localization'
 
 # path to data folder
 path_project_data = os.path.join(path_project, 'data')
@@ -68,24 +68,18 @@ moving_id = None
 
 # choose dataset
 # dataset = '2023_05_10_test'
-dataset = 'input'
+dataset = 'images'
+
 
 # other data params
 wandb_usage = False
 os.environ['WANDB_API_KEY'] = 'xxx'    # wandb API key for your user
-train_val_split = 0.90     # percentage of unsupervised training samples, rest is validation
-unsupervised_validation = False     # whether to use validation set without segmentations
-supervised_validation = True     # whether to use validation set with segmentations
-patient_specific_inference = True       # whether to use model trained on first frames of each patient in main_infer script
-inference = 'testing'   #  validation, testing 
+train_val_split = 0.80     # percentage of unsupervised training samples, rest is validation
+unsupervised_validation = True     # whether to use validation set without segmentations
+supervised_validation = False     # whether to use validation set with segmentations
+patient_specific_inference = False       # whether to use model trained on first frames of each patient in main_infer script
+inference = 'validation'   #  validation, testing 
 
-# choose patients for labeled fine-tuning, validation and testing set 
-observer_training = 'OAS1_0308_MR1_mpr-1_101.jpg'
-patients_training = ['OAS1_0021_MR1_mpr-1_132', 'OAS1_0021_MR1_mpr-1_133', 'OAS1_0021_MR1_mpr-1_134', 'OAS1_0021_MR1_mpr-1_135']
-observer_validation = 'Non Demented'
-patients_validation = ['patient_val']
-observer_testing = 'OAS1_0308_MR1_mpr-1_101.jpg'  #  contoured_ground_truth_LV, contoured_ground_truth_VG
-patients_testing = ['OAS1_0001_MR1_mpr-1_101', 'OAS1_0001_MR1_mpr-1_102', 'OAS1_0001_MR1_mpr-1_103', 'OAS1_0001_MR1_mpr-1_104']
 
 
 # choose model for main script
@@ -97,14 +91,12 @@ if model_name == 'TransMorph2D':
     if load_state: 
         # specify model 
         start_time_string = '2023-09-14-07:20:12'   # unsup --> this one has uploaded weights!
-        # start_time_string = '2023-09-14-07:20:12_supervised_2023-10-02-15:15:24'   # unsup+sup
-        # start_time_string = '2023-09-14-07:20:12_ps_2023-10-15-14:59:20'    # unsup+ps (val)
-        # start_time_string = '2023-09-14-07:20:12_ps_2023-10-18-09:26:11'    # unsup+ps (test)
+
     batch_size = 2     # 2, 16, 64, 128, 192
     lr = 0.00001    # learning rate
     lr_scheduler = None   # None, WarmupCosine
-    epoch_nr = 300    # nr of training epochs   30, 50, 100, 150, 300, 500
-    loss_name = 'MSE-Diffusion'   # MSE, SSIM, LNCC, Dice, MSE-Diffusion, MSE-Bending, LNCC-Diffusion, LNCC-Bending, Dice-Diffusion, Dice-Bending, MSE-Dice-Diffusion, MSE-Dice-Bending
+    epoch_nr = 7    # nr of training epochs   30, 50, 100, 150, 300, 500
+    loss_name = 'LNCC-Diffusion'   # MSE, SSIM, LNCC, Dice, MSE-Diffusion, MSE-Bending, LNCC-Diffusion, LNCC-Bending, Dice-Diffusion, Dice-Bending, MSE-Dice-Diffusion, MSE-Dice-Bending
     loss_weights = [1, 0.01]   # weights for combined loss,  0th element is for image and 1st for displacmement part
     # loss_weights = [0.05, 1, 0.005]   # weights for combined loss,  0th element is for image and 1st for segmentation and 2nd for displacmement part
     prob_randaffine = 0.75
