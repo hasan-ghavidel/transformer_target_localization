@@ -55,7 +55,7 @@ def get_2DTransMorph_config():
     config.use_checkpoint = False
     config.out_indices = (0, 1, 2, 3)
     config.reg_head_chan = 16
-    config.img_size = (224, 224)
+    config.img_size = (1024, 1024)
     config.jitter = False
     return config
 
@@ -86,7 +86,7 @@ def get_2DTransMorphWithJitter_config():
     config.use_checkpoint = False
     config.out_indices = (0, 1, 2, 3)
     config.reg_head_chan = 16
-    config.img_size = (224, 224)
+    config.img_size = (1024, 1024)
     config.jitter = True
     return config
 
@@ -116,7 +116,7 @@ def get_2DTransMorphNoConvSkip_config():
     config.use_checkpoint = False
     config.out_indices = (0, 1, 2, 3)
     config.reg_head_chan = 16
-    config.img_size = (224, 224)
+    config.img_size = (1024, 1024)
     config.pos_embed_method = 'relative'
     return config
 
@@ -145,7 +145,7 @@ def get_2DTransMorphNoTransSkip_config():
     config.use_checkpoint = False
     config.out_indices = (0, 1, 2, 3)
     config.reg_head_chan = 16
-    config.img_size = (224, 224)
+    config.img_size = (1024, 1024)
     return config
 
 def get_2DTransMorphLarge_config():
@@ -174,7 +174,7 @@ def get_2DTransMorphLarge_config():
     config.use_checkpoint = False
     config.out_indices = (0, 1, 2, 3)
     config.reg_head_chan = 16
-    config.img_size = (224, 224)
+    config.img_size = (1024, 1024)
     return config
 
 def get_2DTransMorphSmall_config():
@@ -203,7 +203,7 @@ def get_2DTransMorphSmall_config():
     config.use_checkpoint = False
     config.out_indices = (0, 1, 2, 3)
     config.reg_head_chan = 16
-    config.img_size = (224, 224)
+    config.img_size = (1024, 1024)
     return config
 
 def get_2DTransMorphTiny_config():
@@ -232,5 +232,5 @@ def get_2DTransMorphTiny_config():
     config.use_checkpoint = False
     config.out_indices = (0, 1, 2, 3)
     config.reg_head_chan = 16
-    config.img_size = (224, 224)
+    config.img_size = (1024, 1024)
     return config
