@@ -6,7 +6,7 @@ from models.TransMorph import dict_model_variants
 import models.TransMorph as TransMorph
 
 import monai
-from monai.transforms import Compose, LoadImaged, RandGibbsNoised, ScaleIntensityRanged, RandAffined, RandBiasFieldd, EnsureChannelFirstd, CenterSpatialCropd, RandGaussianSmoothd
+from monai.transforms import Compose, LoadImaged, RandGibbsNoised, ScaleIntensityRanged, RandAffined,RandBiasFieldd, EnsureChannelFirstd, CenterSpatialCropd, RandGaussianSmoothd
 from monai.data import DataLoader, Dataset, CacheDataset, PersistentDataset, CacheNTransDataset
 from monai.optimizers import WarmupCosineSchedule
 import config
@@ -49,6 +49,7 @@ if config.wandb_usage:
        }
    )
 
+
 # GET DATA
 # settings path to dataset etc
 path_dataset = os.path.join(config.path_project_data, config.dataset)
@@ -80,12 +81,30 @@ if config.supervised_validation:
 print('Number of supervised validation image pairs: {}'.format(len(val_files_supervised)))
 
 
+class EnsureSingleChannel:
+    def __init__(self, keys):
+        self.keys = keys
+
+    def __call__(self, data):
+        for key in self.keys:
+            img = data[key]
+            # Convert to tensor if not already
+            if not isinstance(img, torch.Tensor):
+                img = torch.tensor(img)
+            # Ensure it has exactly 1 channel
+            if img.shape[0] > 1:
+                img = img[0:1]  # Take only the first channel
+            elif img.shape[0] < 1:
+                raise ValueError("Image has less than 1 channel, cannot be processed")
+            data[key] = img
+        return data
 
 train_transforms = Compose(
    [
        LoadImaged(keys=["fixed_image", "moving_image"]),
        # EnsureChannelFirstd(keys=("fixed_image", "moving_image"), channel_dim=-1),  # images have shape (270,270,1)
        EnsureChannelFirstd(keys=("fixed_image", "moving_image")),  # images have shape ??
+       EnsureSingleChannel(keys=["fixed_image", "moving_image"]),
        ScaleIntensityRanged(
            keys=["fixed_image", "moving_image"],
            a_min=0,
@@ -132,6 +151,7 @@ if config.unsupervised_validation:
            LoadImaged(keys=["fixed_image", "moving_image"]),
            # EnsureChannelFirstd(keys=("fixed_image", "moving_image"), channel_dim=-1),  # images have shape (270,270,1)
            EnsureChannelFirstd(keys=("fixed_image", "moving_image")),
+           EnsureSingleChannel(keys=["fixed_image", "moving_image"]),
            ScaleIntensityRanged(
                keys=["fixed_image", "moving_image"],
                a_min=0,
@@ -153,6 +173,7 @@ if config.supervised_validation:
        LoadImaged(keys=["fixed_image", "moving_image", "fixed_seg", "moving_seg"]),
        #EnsureChannelFirstd(keys=("fixed_image", "moving_image", "fixed_seg", "moving_seg"), channel_dim=-1),  # images/segmentations have shape (h,w,1)
        EnsureChannelFirstd(keys=("fixed_image", "moving_image", "fixed_seg", "moving_seg")),  # images/segmentations have shape (h,w) ... after this steps data has shape (1,h,w)
+       EnsureSingleChannel(keys=["fixed_image", "moving_image"]),
        ScaleIntensityRanged(
            keys=["fixed_image", "moving_image"],
            a_min=0,
@@ -175,8 +196,6 @@ if config.unsupervised_validation:
    val_ds = Dataset(data=val_files, transform=val_transforms)
 if config.supervised_validation:
    val_ds_supervised = Dataset(data=val_files_supervised, transform=val_transforms_supervised)
-
-
 
 
 # get data into batches using Dataloaders
