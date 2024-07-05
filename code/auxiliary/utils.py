@@ -10,7 +10,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from subprocess import run, PIPE
 import random, time
-from functools import wraps
 import monai
 from monai.transforms import Compose, LoadImaged, RandGibbsNoised, ScaleIntensityRanged, RandAffined, EnsureChannelFirstd, CenterSpatialCropd, RandGaussianSmoothd
 from monai.data import DataLoader, Dataset, CacheDataset, PersistentDataset, CacheNTransDataset
@@ -147,7 +146,7 @@ def resample_image(in_array, out_spacing=(1.0, 1.0, 1.0),
     return out_array     
     
     
-def runcmd(cmd, path_cwd, fn_out=None):
+def runcmd(cmd, path_cwd, fn_out=None):           
     """
     Runs a command as can be run in shell and prints the output if needed.
     Parameters:
@@ -267,7 +266,40 @@ def get_path_to_best_optimizer(path_model_files, neg_loss=False):
     return path_best_optimizer
 
 
-def get_paths_dict(path_dataset, moving_id='OAS1_0028_MR1_mpr-1_100.jpg', seg=False, excluded_frames=[]):
+def get_paths_dict_hassan(path_dataset):
+    paths_fixed_image = []    # current frame
+    paths_moving_image = []   # key frame
+    
+    # check for all subdirs in this path
+    for path_cine in subdir_paths(path_dataset):
+        # loops over all files in subdir
+        for _, _, file_list in os.walk(path_cine):
+            file_list_sorted = [x for x in sorted(file_list)]
+            # get first frame --> moving
+            moving_id_name = file_list_sorted[0]
+
+            nr_frames = 0  # nr of fixed images
+            for file_name in file_list:
+                if file_name != moving_id_name:
+                    nr_frames += 1
+                    # get path to fixed images according to moving_id
+                    paths_fixed_image.append(os.path.join(path_cine, file_name))
+            # repeat path to moving image for every fixed image
+            for file_nr in range(nr_frames):
+                paths_moving_image.append(os.path.join(path_cine, moving_id_name))
+    
+        paths_dict = [
+        {
+            "fixed_image": paths_fixed_image[idx],
+            "moving_image": paths_moving_image[idx],
+        }
+        for idx in range(len(paths_fixed_image))
+        ]
+
+    return paths_dict
+
+
+def get_paths_dict(path_dataset, moving_id='00000001_000.png', seg=False, excluded_frames=[]):
     """Get paths to all pairs of fixed and moving images in a specified directory. Needs to be adapted to own folder structure!
 
     Args:
@@ -311,7 +343,7 @@ def get_paths_dict(path_dataset, moving_id='OAS1_0028_MR1_mpr-1_100.jpg', seg=Fa
                     # repeat path to moving image for every fixed image
                     for file_nr in range(nr_frames):
                         paths_moving_image.append(os.path.join(path_cine, moving_id_name))
-    
+     
         paths_dict = [
         {
             "fixed_image": paths_fixed_image[idx],
@@ -321,7 +353,7 @@ def get_paths_dict(path_dataset, moving_id='OAS1_0028_MR1_mpr-1_100.jpg', seg=Fa
         ]
                
     else:
-        # getting all paths to fixed and moving images
+        # getting all pareturn paths_dictths to fixed and moving images
         labels_folder = 'labels'
         
         # print(f'Getting paths for: {path_case}')
@@ -340,10 +372,7 @@ def get_paths_dict(path_dataset, moving_id='OAS1_0028_MR1_mpr-1_100.jpg', seg=Fa
                 else:
                     moving_id_name = moving_id
                     
-                if os.path.basename(path_dataset) == 'lung_patient0041':
-                    # as the first frame for this patient is empty, manually select the next which isn't
-                    moving_id_name = 'OAS1_0028_MR1_mpr-1_109.jpg'
-                
+ 
                 nr_frames = 0   # nr of fixed images
                 for file_name in current_dir_file_list:
                     if file_name != moving_id_name:
@@ -372,6 +401,7 @@ def get_paths_dict(path_dataset, moving_id='OAS1_0028_MR1_mpr-1_100.jpg', seg=Fa
         ]       
     
     return paths_dict
+
 
 def separate_ps_train_and_infer(all_files, excluded_frames, len_train=12):
     train_list = []
