@@ -10,6 +10,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from subprocess import run, PIPE
 import random, time
+from functools import wraps
 import monai
 from monai.transforms import Compose, LoadImaged, RandGibbsNoised, ScaleIntensityRanged, RandAffined, EnsureChannelFirstd, CenterSpatialCropd, RandGaussianSmoothd
 from monai.data import DataLoader, Dataset, CacheDataset, PersistentDataset, CacheNTransDataset
@@ -146,7 +147,7 @@ def resample_image(in_array, out_spacing=(1.0, 1.0, 1.0),
     return out_array     
     
     
-def runcmd(cmd, path_cwd, fn_out=None):           
+def runcmd(cmd, path_cwd, fn_out=None):
     """
     Runs a command as can be run in shell and prints the output if needed.
     Parameters:
@@ -170,44 +171,7 @@ def runcmd(cmd, path_cwd, fn_out=None):
     # write output to file if desired
     if fn_out is not None:
         print ('Writing output to file ' + fn_out + '\n')
-        with open (fn_out, 'w') as file_out:def get_paths_dict_hassan3(path_dataset):
-    paths_fixed_image = []
-    paths_moving_image = []
-
-    # Loop over all files in the directory
-    for _, _, file_list in os.walk(path_dataset):
-        file_list_sorted = sorted(file_list)
-
-        if not file_list_sorted:
-            return []  # If the directory is empty, return an empty list
-
-        # Define the fixed image and remove it from the sorted list
-        fixed_image_name = 'female_89_detector1440_50.musum.png'
-        if fixed_image_name not in file_list_sorted:
-            raise ValueError(f"Fixed image {fixed_image_name} not found in the directory")
-        file_list_sorted.remove(fixed_image_name)
-
-        # Define the first image and ensure it appears last in the moving image list
-        first_image_name = 'female_89_detector1440_1.musum.png'
-        if first_image_name in file_list_sorted:
-            file_list_sorted.remove(first_image_name)
-            file_list_sorted.append(first_image_name)  # Add it to the end of the list
-
-        # Populate the paths for moving and fixed images
-        for moving_image_name in file_list_sorted:
-            paths_moving_image.append(os.path.join(path_dataset, moving_image_name))
-            paths_fixed_image.append(os.path.join(path_dataset, fixed_image_name))
-
-    # Create a list of dictionaries with the fixed and moving images
-    paths_dict = [
-        {
-            "fixed_image": paths_fixed_image[idx],
-            "moving_image": paths_moving_image[idx],
-        }
-        for idx in range(len(paths_fixed_image))
-    ]
-
-    return paths_dict
+        with open (fn_out, 'w') as file_out:
             file_out.write(str(result.stdout))
             
 #    print ('### SUBPROCESS END')
@@ -374,7 +338,8 @@ def get_paths_dict_hassan(path_dataset):
     return paths_dict
 
 
-def get_paths_dict(path_dataset, moving_id='00000001_000.png', seg=False, excluded_frames=[]):
+
+def get_paths_dict(path_dataset, moving_id='frame_six.nii.gz', seg=False, excluded_frames=[]):
     """Get paths to all pairs of fixed and moving images in a specified directory. Needs to be adapted to own folder structure!
 
     Args:
@@ -395,8 +360,9 @@ def get_paths_dict(path_dataset, moving_id='00000001_000.png', seg=False, exclud
     if seg is False:
         # getting all paths to fixed and moving images
         for path_case in path_data:
+            # print(f'Getting paths for: {path_case}')
             # getting paths to different cine MRI (sessions)
-            for path_cine in subdir_paths(path_case):
+            for path_cine in subdir_paths(os.path.join(path_case, 'raw_cine')):
                 for _, _, file_list in os.walk(path_cine):
                     if moving_id is None:
                         # convert list from words back to number
@@ -418,7 +384,7 @@ def get_paths_dict(path_dataset, moving_id='00000001_000.png', seg=False, exclud
                     # repeat path to moving image for every fixed image
                     for file_nr in range(nr_frames):
                         paths_moving_image.append(os.path.join(path_cine, moving_id_name))
-     
+    
         paths_dict = [
         {
             "fixed_image": paths_fixed_image[idx],
@@ -426,9 +392,9 @@ def get_paths_dict(path_dataset, moving_id='00000001_000.png', seg=False, exclud
         }
         for idx in range(len(paths_fixed_image))
         ]
-               
+        
     else:
-        # getting all pareturn paths_dictths to fixed and moving images
+        # getting all paths to fixed and moving images
         labels_folder = 'labels'
         
         # print(f'Getting paths for: {path_case}')
@@ -447,7 +413,10 @@ def get_paths_dict(path_dataset, moving_id='00000001_000.png', seg=False, exclud
                 else:
                     moving_id_name = moving_id
                     
- 
+                if os.path.basename(path_dataset) == 'lung_patient0041':
+                    # as the first frame for this patient is empty, manually select the next which isn't
+                    moving_id_name = 'frame_nine.nii.gz'
+                
                 nr_frames = 0   # nr of fixed images
                 for file_name in current_dir_file_list:
                     if file_name != moving_id_name:
@@ -476,7 +445,6 @@ def get_paths_dict(path_dataset, moving_id='00000001_000.png', seg=False, exclud
         ]       
     
     return paths_dict
-
 
 def separate_ps_train_and_infer(all_files, excluded_frames, len_train=12):
     train_list = []
@@ -648,7 +616,7 @@ def text2int(textnum, numwords={}):
     current = result = 0
     for word in textnum.replace(',', '').split():
         if word not in numwords:
-          continue
+          raise Exception("Illegal word: " + word)
 
         scale, increment = numwords[word]
         current = current * scale + increment
@@ -786,7 +754,6 @@ def get_segmentation_com(outputs, targets, to_tensor=True):
     return com_outputs, com_targets
 
 def breathhold_detection_vectorized(array1, array2=None, wdw_size=20, amp_threshold1=0.05, amp_threshold2=0.005):
-
     """ Given a sequence of data, subdivide it in windows and then slide over them to find breath-holds.
     Args:
         array1: input sequence (e.g. inf-sup)
@@ -846,7 +813,6 @@ def breathhold_detection_vectorized(array1, array2=None, wdw_size=20, amp_thresh
                 breathholds[window] = 1           
 
     return breathholds
-
 # %%
 
 # if __name__ == "__main__":    
