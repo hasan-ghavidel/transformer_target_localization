@@ -80,6 +80,26 @@ if config.supervised_validation:
        val_files_supervised.extend(utils.get_paths_dict(path_dataset=path_dataset_supervised, moving_id=config.moving_id, seg=True))
 print('Number of supervised validation image pairs: {}'.format(len(val_files_supervised)))
 
+# Initialize train and validation file lists
+# train_files = []
+# # Get paths for training patients
+# for patient in config.patients_training:
+#     observer = config.observer_training
+#     path_dataset_patient = os.path.join(config.path_project_data, 'images', observer, patient)
+#     train_files.extend(utils.get_paths_dict_hassan3(path_dataset=path_dataset_patient))
+#     print(f'Path for training patient folder {patient}: {path_dataset_patient}')
+# val_files = []
+# # Get paths for validation patients
+# for patient in config.patients_validation:
+#     observer = config.observer_validation
+#     path_dataset_patient = os.path.join(config.path_project_data, 'images', observer, patient)
+#     val_files.extend(utils.get_paths_dict_hassan3(path_dataset=path_dataset_patient))
+#     print(f'Path for validation patient folder {patient}: {path_dataset_patient}')
+# # Print total number of training and validation files
+# print(f'Number of training image pairs: {len(train_files)}')
+# print("\n".join([str(file) for file in train_files]))
+# print(f'Number of validation image pairs: {len(val_files)}')
+# print("\n".join([str(file) for file in val_files]))
 
 class EnsureSingleChannel:
     def __init__(self, keys):
