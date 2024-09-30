@@ -170,7 +170,44 @@ def runcmd(cmd, path_cwd, fn_out=None):
     # write output to file if desired
     if fn_out is not None:
         print ('Writing output to file ' + fn_out + '\n')
-        with open (fn_out, 'w') as file_out:
+        with open (fn_out, 'w') as file_out:def get_paths_dict_hassan3(path_dataset):
+    paths_fixed_image = []
+    paths_moving_image = []
+
+    # Loop over all files in the directory
+    for _, _, file_list in os.walk(path_dataset):
+        file_list_sorted = sorted(file_list)
+
+        if not file_list_sorted:
+            return []  # If the directory is empty, return an empty list
+
+        # Define the fixed image and remove it from the sorted list
+        fixed_image_name = 'female_89_detector1440_50.musum.png'
+        if fixed_image_name not in file_list_sorted:
+            raise ValueError(f"Fixed image {fixed_image_name} not found in the directory")
+        file_list_sorted.remove(fixed_image_name)
+
+        # Define the first image and ensure it appears last in the moving image list
+        first_image_name = 'female_89_detector1440_1.musum.png'
+        if first_image_name in file_list_sorted:
+            file_list_sorted.remove(first_image_name)
+            file_list_sorted.append(first_image_name)  # Add it to the end of the list
+
+        # Populate the paths for moving and fixed images
+        for moving_image_name in file_list_sorted:
+            paths_moving_image.append(os.path.join(path_dataset, moving_image_name))
+            paths_fixed_image.append(os.path.join(path_dataset, fixed_image_name))
+
+    # Create a list of dictionaries with the fixed and moving images
+    paths_dict = [
+        {
+            "fixed_image": paths_fixed_image[idx],
+            "moving_image": paths_moving_image[idx],
+        }
+        for idx in range(len(paths_fixed_image))
+    ]
+
+    return paths_dict
             file_out.write(str(result.stdout))
             
 #    print ('### SUBPROCESS END')
@@ -265,6 +302,44 @@ def get_path_to_best_optimizer(path_model_files, neg_loss=False):
     
     return path_best_optimizer
 
+def get_paths_dict_hassan3(path_dataset):
+    paths_fixed_image = []
+    paths_moving_image = []
+
+    # Loop over all files in the directory
+    for _, _, file_list in os.walk(path_dataset):
+        file_list_sorted = sorted(file_list)
+
+        if not file_list_sorted:
+            return []  # If the directory is empty, return an empty list
+
+        # Define the fixed image and remove it from the sorted list
+        fixed_image_name = 'female_89_detector1440_50.musum.png'
+        if fixed_image_name not in file_list_sorted:
+            raise ValueError(f"Fixed image {fixed_image_name} not found in the directory")
+        file_list_sorted.remove(fixed_image_name)
+
+        # Define the first image and ensure it appears last in the moving image list
+        first_image_name = 'female_89_detector1440_1.musum.png'
+        if first_image_name in file_list_sorted:
+            file_list_sorted.remove(first_image_name)
+            file_list_sorted.append(first_image_name)  # Add it to the end of the list
+
+        # Populate the paths for moving and fixed images
+        for moving_image_name in file_list_sorted:
+            paths_moving_image.append(os.path.join(path_dataset, moving_image_name))
+            paths_fixed_image.append(os.path.join(path_dataset, fixed_image_name))
+
+    # Create a list of dictionaries with the fixed and moving images
+    paths_dict = [
+        {
+            "fixed_image": paths_fixed_image[idx],
+            "moving_image": paths_moving_image[idx],
+        }
+        for idx in range(len(paths_fixed_image))
+    ]
+
+    return paths_dict
 
 def get_paths_dict_hassan(path_dataset):
     paths_fixed_image = []    # current frame
